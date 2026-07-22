@@ -8,7 +8,7 @@ A dark-themed React movie app built with Vite, TMDB API, Axios, and React Router
 - Search movies by title
 - Movie detail page
 - Favorites system with localStorage persistence
-- Login and registration using localStorage
+- Login and registration via backend API with auth token storage in localStorage
 - Responsive dark theme UI
 
 ## Project Structure
@@ -46,5 +46,5 @@ Get a free API key from [The Movie Database](https://www.themoviedb.org/) and se
 
 ## Notes
 
-- User authentication is simulated in localStorage and is not secure for production use.
+- User authentication is handled by the backend API. Register and login requests are sent to `https://academyofdigitalindustriesbackend.onrender.com/api/v1/auth`, and the returned JWT is stored in localStorage under `movieverse-session`.
 - Favorites are saved per logged-in user in localStorage.

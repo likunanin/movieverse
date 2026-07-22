@@ -1,20 +1,27 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../services/auth";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { login, loading } = useAuth();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const result = loginUser({ email, password });
+    setIsSubmitting(true);
+    setMessage("");
+
+    const result = await login(email, password);
     if (!result.success) {
       setMessage(result.message);
+      setIsSubmitting(false);
       return;
     }
+
     navigate("/");
   };
 
@@ -45,8 +52,8 @@ function Login() {
             />
           </label>
           {message && <div className="alert-card alert-error">{message}</div>}
-          <button className="primary-btn" type="submit">
-            Sign In
+          <button className="primary-btn" type="submit" disabled={isSubmitting || loading}>
+            {isSubmitting || loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
       </div>

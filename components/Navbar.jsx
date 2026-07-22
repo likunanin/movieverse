@@ -1,24 +1,12 @@
-import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getCurrentUser, logoutUser } from "../services/auth";
+import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
-  const [user, setUser] = useState(getCurrentUser());
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const refreshUser = () => setUser(getCurrentUser());
-    window.addEventListener("storage", refreshUser);
-    window.addEventListener("movieverse-auth-change", refreshUser);
-    return () => {
-      window.removeEventListener("storage", refreshUser);
-      window.removeEventListener("movieverse-auth-change", refreshUser);
-    };
-  }, []);
-
-  const handleLogout = () => {
-    logoutUser();
-    setUser(null);
+  const handleLogout = async () => {
+    await logout();
     navigate("/login");
   };
 
@@ -35,7 +23,9 @@ function Navbar() {
         <Link to="/favorites">Favorites</Link>
         {user ? (
           <>
-            <span className="navbar-user">Hi, {user.name}</span>
+            <span className="navbar-user">
+              Hi, {user.name || user.userName || user.email}
+            </span>
             <button className="btn btn-link" onClick={handleLogout}>
               Logout
             </button>

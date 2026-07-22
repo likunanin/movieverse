@@ -1,45 +1,44 @@
-const USERS_KEY = "movieverse-users";
 const SESSION_KEY = "movieverse-session";
+const AUTH_EVENT = "movieverse-auth-change";
+const TOKEN_KEY = "movieverse-token";
 
-const emitAuthChange = () => window.dispatchEvent(new Event("movieverse-auth-change"));
-const readUsers = () => JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
-const writeUsers = (users) => localStorage.setItem(USERS_KEY, JSON.stringify(users));
+const emitAuthChange = () => window.dispatchEvent(new Event(AUTH_EVENT));
 
-export const getCurrentUser = () => {
+const getStoredToken = () => localStorage.getItem(TOKEN_KEY);
+const setStoredToken = (token) => localStorage.setItem(TOKEN_KEY, token);
+const clearStoredToken = () => localStorage.removeItem(TOKEN_KEY);
+
+const getSessionUser = () => {
   const session = localStorage.getItem(SESSION_KEY);
   return session ? JSON.parse(session) : null;
 };
 
-export const loginUser = ({ email, password }) => {
-  const users = readUsers();
-  const user = users.find((item) => item.email.toLowerCase() === email.toLowerCase());
-  if (!user) {
-    return { success: false, message: "No account found with that email." };
+export const saveSession = (user, token) => {
+  console.log("DEBUG saveSession before write", SESSION_KEY, user, token);
+  localStorage.setItem(SESSION_KEY, JSON.stringify(user));
+  console.log("DEBUG saveSession after write", SESSION_KEY, localStorage.getItem(SESSION_KEY));
+  if (token) {
+    setStoredToken(token);
   }
-  if (user.password !== password) {
-    return { success: false, message: "Password is incorrect." };
-  }
-  localStorage.setItem(SESSION_KEY, JSON.stringify({ name: user.name, email: user.email }));
   emitAuthChange();
-  return { success: true, user };
 };
 
-export const registerUser = ({ name, email, password }) => {
-  const users = readUsers();
-  if (users.some((item) => item.email.toLowerCase() === email.toLowerCase())) {
-    return { success: false, message: "Email is already registered." };
-  }
-  const newUser = { name, email: email.toLowerCase(), password };
-  users.push(newUser);
-  writeUsers(users);
-  localStorage.setItem(SESSION_KEY, JSON.stringify({ name: newUser.name, email: newUser.email }));
-  emitAuthChange();
-  return { success: true, user: newUser };
-};
-
-export const logoutUser = () => {
+export const clearSession = () => {
   localStorage.removeItem(SESSION_KEY);
+  clearStoredToken();
   emitAuthChange();
+};
+
+export const getCurrentUser = () => getSessionUser();
+
+export const getAuthHeaders = () => {
+  const token = getStoredToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
+export const logoutUser = async () => {
+  clearSession();
+  return { success: true };
 };
 
 const getFavoriteKey = (email) => `movieverse-favorites-${email}`;

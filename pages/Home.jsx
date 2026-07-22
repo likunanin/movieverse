@@ -2,24 +2,14 @@ import { useEffect, useState } from "react";
 import MovieCard from "../components/MovieCard";
 import SearchBar from "../components/SearchBar";
 import { fetchPopularMovies, searchMovies } from "../services/api";
-import { getCurrentUser } from "../services/auth";
+import { useAuth } from "../context/AuthContext";
 
 function Home() {
   const [movies, setMovies] = useState([]);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [user, setUser] = useState(getCurrentUser());
-
-  useEffect(() => {
-    const handleAuthChange = () => setUser(getCurrentUser());
-    window.addEventListener("movieverse-auth-change", handleAuthChange);
-    window.addEventListener("storage", handleAuthChange);
-    return () => {
-      window.removeEventListener("movieverse-auth-change", handleAuthChange);
-      window.removeEventListener("storage", handleAuthChange);
-    };
-  }, []);
+  const { user } = useAuth();
 
   const loadMovies = async (searchTerm) => {
     try {
@@ -56,7 +46,7 @@ function Home() {
         <SearchBar query={query} onChange={setQuery} onSubmit={handleSearch} />
       </section>
 
-      {user ? null : (
+      {!user && (
         <div className="alert-card">
           Login to save favorites and track your watchlist.
         </div>

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getMovieDetails, getImageUrl } from "../services/api";
-import { getCurrentUser, isMovieFavorite, toggleFavorite } from "../services/auth";
+import { isMovieFavorite, toggleFavorite } from "../services/auth";
+import { useAuth } from "../context/AuthContext";
 
 function MovieDetails() {
   const { id } = useParams();
@@ -9,7 +10,7 @@ function MovieDetails() {
   const [loading, setLoading] = useState(true);
   const [favorite, setFavorite] = useState(false);
   const [error, setError] = useState("");
-  const user = getCurrentUser();
+  const { user } = useAuth();
 
   useEffect(() => {
     const load = async () => {

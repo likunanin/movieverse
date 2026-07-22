@@ -1,24 +1,15 @@
 import { useEffect, useState } from "react";
 import MovieCard from "../components/MovieCard";
-import { getCurrentUser, getFavorites } from "../services/auth";
+import { getFavorites } from "../services/auth";
+import { useAuth } from "../context/AuthContext";
 
 function Favorites() {
+  const { user } = useAuth();
   const [favorites, setFavorites] = useState([]);
-  const [user, setUser] = useState(getCurrentUser());
 
   useEffect(() => {
-    setFavorites(getFavorites());
-    const handleAuthChange = () => {
-      setUser(getCurrentUser());
-      setFavorites(getFavorites());
-    };
-    window.addEventListener("movieverse-auth-change", handleAuthChange);
-    window.addEventListener("storage", handleAuthChange);
-    return () => {
-      window.removeEventListener("movieverse-auth-change", handleAuthChange);
-      window.removeEventListener("storage", handleAuthChange);
-    };
-  }, []);
+    setFavorites(user ? getFavorites() : []);
+  }, [user]);
 
   const refreshFavorites = () => setFavorites(getFavorites());
 

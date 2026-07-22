@@ -1,21 +1,28 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { registerUser } from "../services/auth";
+import { useAuth } from "../context/AuthContext";
 
 function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { register, loading } = useAuth();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const result = registerUser({ name, email, password });
+    setIsSubmitting(true);
+    setMessage("");
+
+    const result = await register(name, email, password);
     if (!result.success) {
       setMessage(result.message);
+      setIsSubmitting(false);
       return;
     }
+
     navigate("/");
   };
 
@@ -56,8 +63,8 @@ function Register() {
             />
           </label>
           {message && <div className="alert-card alert-error">{message}</div>}
-          <button className="primary-btn" type="submit">
-            Register
+          <button className="primary-btn" type="submit" disabled={isSubmitting || loading}>
+            {isSubmitting || loading ? "Creating account..." : "Register"}
           </button>
         </form>
       </div>
